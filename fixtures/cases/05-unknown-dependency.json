@@ -1,0 +1,1 @@
+{"schema":"gooo/proof-kernel-boundary/case/v1","case_id":"unknown-dependency","candidate_status":"UNKNOWN","expected_status":"UNKNOWN","unknown":{"stage":"EVALUATION","step":"WAIT_FOR_PARENT_RECEIPT","reason":"PARENT_PROOF_NOT_AVAILABLE","unknown_class":"DEPENDENCY_BLOCKED","next_operation":"REPLAY_PARENT_RECEIPT","blocked_by":["parent-proof-receipt"]}}

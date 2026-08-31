@@ -1,0 +1,31 @@
+{
+  "schema": "gooo/proof-kernel-boundary/denominator/v1",
+  "denominator_id": "gooo://proof-kernel-boundary/denominator/v1",
+  "version": 1,
+  "total": 12,
+  "fixed": true,
+  "proofs": [
+    {"choice": "FOUNDATION", "total": 4},
+    {"choice": "COHERENCE", "total": 4},
+    {"choice": "REGRESSION", "total": 4}
+  ],
+  "indicator_classes": [
+    {"class": "DRIVER", "total": 4},
+    {"class": "OUTCOME", "total": 4},
+    {"class": "GUARDRAIL", "total": 4}
+  ],
+  "cells": [
+    {"ordinal": 1, "id": "KERNEL_BOUNDARY", "activity": "DeclareKernelBoundary", "proof_choice": "FOUNDATION", "indicator_class": "DRIVER", "metric_id": "gooo.proof_kernel.boundary.v1", "metric_path": "kernel.boundary", "artifact": "internal/kernel", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 2, "id": "PARENT_KERNEL_RELEASE", "activity": "PinParentKernelRelease", "proof_choice": "FOUNDATION", "indicator_class": "OUTCOME", "metric_id": "gooo.proof_kernel.parent_release.v1", "metric_path": "parent.release", "artifact": "fixtures/optional/parent-kernel-release-lock.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 3, "id": "KERNEL_VERDICT", "activity": "VerifyKernelVerdict", "proof_choice": "FOUNDATION", "indicator_class": "GUARDRAIL", "metric_id": "gooo.proof_kernel.verdict.v1", "metric_path": "verdict", "artifact": "evaluation.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 4, "id": "PRECEDENCE", "activity": "VerifyPrecedence", "proof_choice": "FOUNDATION", "indicator_class": "DRIVER", "metric_id": "gooo.proof_kernel.precedence.v1", "metric_path": "precedence", "artifact": "evaluation.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 5, "id": "DENOMINATOR", "activity": "VerifyDenominator", "proof_choice": "COHERENCE", "indicator_class": "OUTCOME", "metric_id": "gooo.proof_kernel.denominator.v1", "metric_path": "denominator", "artifact": "contracts/proof-kernel-boundary-denominator-v1.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 6, "id": "DIGEST_VERIFIER", "activity": "VerifyDigestVerifier", "proof_choice": "COHERENCE", "indicator_class": "GUARDRAIL", "metric_id": "gooo.proof_kernel.digest.v1", "metric_path": "digest_verifier", "artifact": "evaluation.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 7, "id": "AUTHORITY_CEILING", "activity": "VerifyAuthorityCeiling", "proof_choice": "COHERENCE", "indicator_class": "DRIVER", "metric_id": "gooo.proof_kernel.authority.v1", "metric_path": "authority", "artifact": "evaluation.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 8, "id": "SELF_TRUST", "activity": "RejectSelfTrust", "proof_choice": "COHERENCE", "indicator_class": "OUTCOME", "metric_id": "gooo.proof_kernel.self_trust.v1", "metric_path": "self_trust", "artifact": "evaluation.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 9, "id": "KERNEL_CHANGE_UNKNOWN", "activity": "PreserveKernelChangeUnknown", "proof_choice": "REGRESSION", "indicator_class": "GUARDRAIL", "metric_id": "gooo.proof_kernel.change_unknown.v1", "metric_path": "unknown", "artifact": "evaluation.json", "evaluator": "internal/kernel/verify.go"},
+    {"ordinal": 10, "id": "UNTRUSTED_POLICY", "activity": "ValidateUntrustedPolicy", "proof_choice": "REGRESSION", "indicator_class": "DRIVER", "metric_id": "gooo.proof_kernel.untrusted_policy.v1", "metric_path": "evaluator.policy", "artifact": "internal/evaluator/generated.go", "evaluator": "internal/evaluator/generated.go"},
+    {"ordinal": 11, "id": "HUMAN_REPORT", "activity": "EmitHumanReport", "proof_choice": "REGRESSION", "indicator_class": "OUTCOME", "metric_id": "gooo.proof_kernel.report.v1", "metric_path": "report", "artifact": "summary.json", "evaluator": "cmd/gooo-proof-kernel-boundary/main.go"},
+    {"ordinal": 12, "id": "IMPROVEMENT_PAIR", "activity": "CompareImprovementPair", "proof_choice": "REGRESSION", "indicator_class": "GUARDRAIL", "metric_id": "gooo.proof_kernel.improvement.v1", "metric_path": "improvement", "artifact": "evaluation.json", "evaluator": "cmd/gooo-proof-kernel-boundary/main.go"}
+  ]
+}

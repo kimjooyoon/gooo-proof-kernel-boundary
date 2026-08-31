@@ -1,0 +1,7 @@
+{
+  "schema": "gooo/ownership-receipt/v1",
+  "owner_thread_id": "01a0558a-0081-78a1-81d3-cabec152c16f",
+  "scope": "gooo-proof-kernel-boundary",
+  "shared_workspace": "single-writer",
+  "repository_path": "/Users/alice/meta-go/gooo-proof-kernel-boundary"
+}

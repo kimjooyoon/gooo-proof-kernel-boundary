@@ -1,0 +1,19 @@
+{
+  "schema": "gooo/proof-kernel-boundary/ir/v1",
+  "source": "examples/proof-kernel-boundary/main.gooo",
+  "derived_by": "cmd/gooo-proof-kernel-boundary compile",
+  "nodes": [
+    {"activity": "DeclareKernelBoundary", "operation": "declare"},
+    {"activity": "PinParentKernelRelease", "operation": "pin"},
+    {"activity": "VerifyKernelVerdict", "operation": "verify"},
+    {"activity": "VerifyPrecedence", "operation": "verify"},
+    {"activity": "VerifyDenominator", "operation": "verify"},
+    {"activity": "VerifyDigestVerifier", "operation": "verify"},
+    {"activity": "VerifyAuthorityCeiling", "operation": "verify"},
+    {"activity": "RejectSelfTrust", "operation": "refute"},
+    {"activity": "PreserveKernelChangeUnknown", "operation": "preserve"},
+    {"activity": "ValidateUntrustedPolicy", "operation": "validate"},
+    {"activity": "EmitHumanReport", "operation": "emit"},
+    {"activity": "CompareImprovementPair", "operation": "compare"}
+  ]
+}

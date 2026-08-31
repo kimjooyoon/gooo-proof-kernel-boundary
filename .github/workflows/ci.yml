@@ -1,0 +1,146 @@
+name: Proof kernel boundary CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    env:
+      SUBJECT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout subject
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.SUBJECT_SHA }}
+
+      - name: Install Go 1.27
+        uses: actions/setup-go@v6
+        with:
+          go-version: 1.27.x
+          cache: false
+
+      - name: gofmt
+        run: |
+          set -euo pipefail
+          files=$(gofmt -l .)
+          test -z "$files"
+
+      - name: Build and measure
+        id: build
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/proof-kernel"
+          mkdir -p "$work"
+          start=$(date +%s%N)
+          /usr/bin/time -f '%M' -o "$work/build-rss" go build -trimpath -o "$work/gooo-proof-kernel-boundary" ./cmd/gooo-proof-kernel-boundary
+          end=$(date +%s%N)
+          echo "wall_ms=$(( (end-start)/1000000 ))" >> "$GITHUB_OUTPUT"
+          echo "peak_rss_kib=$(cat "$work/build-rss")" >> "$GITHUB_OUTPUT"
+
+      - name: Test and measure
+        id: test
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/proof-kernel"
+          start=$(date +%s%N)
+          /usr/bin/time -f '%M' -o "$work/test-rss" go test -json ./... > "$work/test.json"
+          end=$(date +%s%N)
+          executed=$(jq -R -s '[split("\n")[] | select(length > 0) | fromjson? | select(.Test != null and (.Action == "pass" or .Action == "fail" or .Action == "skip"))] | length' "$work/test.json")
+          skipped=$(jq -R -s '[split("\n")[] | select(length > 0) | fromjson? | select(.Test != null and .Action == "skip")] | length' "$work/test.json")
+          echo "wall_ms=$(( (end-start)/1000000 ))" >> "$GITHUB_OUTPUT"
+          echo "peak_rss_kib=$(cat "$work/test-rss")" >> "$GITHUB_OUTPUT"
+          echo "executed=$executed" >> "$GITHUB_OUTPUT"
+          echo "skipped=$skipped" >> "$GITHUB_OUTPUT"
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: race tests
+        run: go test -race ./...
+
+      - name: Compile, evaluate, and compare controlled cases
+        id: conformance
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/proof-kernel"
+          artifact="$work/artifact"
+          mkdir -p "$artifact"
+          before="$work/repository-before"
+          after="$work/repository-after"
+          repo_snapshot() {
+            find . -path './.git' -prune -o -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}'
+          }
+          repo_snapshot > "$before"
+          start=$(date +%s%N)
+          "$work/gooo-proof-kernel-boundary" compile --source examples/proof-kernel-boundary/main.gooo --contract contracts/proof-kernel-boundary-denominator-v1.json --output "$work/semantic-ir.json" > /dev/null
+          "$work/gooo-proof-kernel-boundary" evaluate --source examples/proof-kernel-boundary/main.gooo --contract contracts/proof-kernel-boundary-denominator-v1.json --ir "$work/semantic-ir.json" --cases fixtures/cases --output-dir "$work/report" > /dev/null
+          end=$(date +%s%N)
+          repo_snapshot > "$after"
+          repository_writes=0
+          if ! cmp -s "$before" "$after"; then repository_writes=1; fi
+          test "$repository_writes" -eq 0
+          report="$work/report/evaluation.json"
+          jq -e '.decision == "REFUTED" and .precedence == ["REFUTED","UNKNOWN","CLOSED"] and .fixed_denominator == 12 and .summary == {total:12,normal:3,unknown:3,refuted:6} and (.cases|length) == 12 and ([.cases[] | select(.status != .expected_status)] | length) == 0 and ([.cases[] | select(.status == "UNKNOWN" and .kernel.unknown.stage != "" and .kernel.unknown.step != "" and .kernel.unknown.reason != "" and .kernel.unknown.unknown_class != "" and .kernel.unknown.next_operation != "" and (.kernel.unknown.blocked_by|type) == "array")] | length) == 3 and (.improvement.status == "UNKNOWN") and .authority.repository_writes == 0 and .authority.local_test_executions == 0 and .authority.cross_project_required_gates == 0' "$report" > /dev/null
+          cp "$report" "$artifact/evaluation.json"
+          cp "$work/semantic-ir.json" "$artifact/semantic-ir.json"
+          echo "wall_ms=$(( (end-start)/1000000 ))" >> "$GITHUB_OUTPUT"
+          echo "peak_rss_kib=0" >> "$GITHUB_OUTPUT"
+          echo "repository_writes=$repository_writes" >> "$GITHUB_OUTPUT"
+
+      - name: Build machine-readable artifact and human summary
+        id: artifact
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/proof-kernel"
+          artifact="$work/artifact"
+          report="$artifact/evaluation.json"
+          trusted_files=$(find internal/kernel -type f -name '*.go' | wc -l | tr -d ' ')
+          trusted_lines=$(find internal/kernel -type f -name '*.go' -print0 | xargs -0 awk 'END {print NR+0}')
+          generated_files=$(find internal/evaluator -type f -name '*.go' | wc -l | tr -d ' ')
+          generated_lines=$(find internal/evaluator -type f -name '*.go' -print0 | xargs -0 awk 'END {print NR+0}')
+          gooo_files=$(find . -path './.git' -prune -o -type f -name '*.gooo' -print | wc -l | tr -d ' ')
+          gooo_lines=$(find . -path './.git' -prune -o -type f -name '*.gooo' -print0 | xargs -0 awk 'END {print NR+0}')
+          regular_files=$(find . -path './.git' -prune -o -type f ! -path './README.md' -print | wc -l | tr -d ' ')
+          descendant_dirs=$(find . -path './.git' -prune -o -mindepth 1 -type d -print | wc -l | tr -d ' ')
+          artifact_files=$(find "$artifact" -type f -print | wc -l | tr -d ' ')
+          artifact_bytes=$(find "$artifact" -type f -print0 | xargs -0 stat -c '%s' | awk '{sum += $1} END {print sum+0}')
+          jq -S -n \
+            --arg subject "$SUBJECT_SHA" \
+            --argjson trusted_files "$trusted_files" \
+            --argjson trusted_lines "$trusted_lines" \
+            --argjson generated_files "$generated_files" \
+            --argjson generated_lines "$generated_lines" \
+            --argjson gooo_files "$gooo_files" \
+            --argjson gooo_lines "$gooo_lines" \
+            --argjson regular_files "$regular_files" \
+            --argjson descendant_dirs "$descendant_dirs" \
+            --argjson artifact_files "$artifact_files" \
+            --argjson artifact_bytes "$artifact_bytes" \
+            --argjson build_wall_ms "${{ steps.build.outputs.wall_ms }}" \
+            --argjson build_peak_rss_kib "${{ steps.build.outputs.peak_rss_kib }}" \
+            --argjson test_wall_ms "${{ steps.test.outputs.wall_ms }}" \
+            --argjson test_peak_rss_kib "${{ steps.test.outputs.peak_rss_kib }}" \
+            --argjson test_executed "${{ steps.test.outputs.executed }}" \
+            --argjson test_skipped "${{ steps.test.outputs.skipped }}" \
+            --argjson conformance_wall_ms "${{ steps.conformance.outputs.wall_ms }}" \
+            --argjson conformance_peak_rss_kib "${{ steps.conformance.outputs.peak_rss_kib }}" \
+            --argjson repository_writes "${{ steps.conformance.outputs.repository_writes }}" \
+            --slurpfile evaluation "$report" \
+            '{schema:"gooo/proof-kernel-boundary/ci-artifact/v1",subject:$subject,inventory:{root_readme_excluded:true,regular_files:$regular_files,descendant_dirs:$descendant_dirs,trusted_go_files:$trusted_files,trusted_go_lines:$trusted_lines,generated_go_files:$generated_files,generated_go_lines:$generated_lines,gooo_files:$gooo_files,gooo_lines:$gooo_lines,kernel_api_surface_count:$evaluation[0].kernel_api_surface_count},authority:{allowed_operations:$evaluation[0].authority.allowed_operations,denied_operations:$evaluation[0].authority.denied_operations,repository_writes:$repository_writes,local_test_executions:0,cross_project_required_gates:0},counts:$evaluation[0].summary,precedence:$evaluation[0].precedence,ci:{go_version:"1.27.x",build_wall_ms:$build_wall_ms,build_peak_rss_kib:$build_peak_rss_kib,test_wall_ms:$test_wall_ms,test_peak_rss_kib:$test_peak_rss_kib,conformance_wall_ms:$conformance_wall_ms,conformance_peak_rss_kib:$conformance_peak_rss_kib,test_executed:$test_executed,test_skipped:$test_skipped},artifacts:{files:$artifact_files,bytes:$artifact_bytes},improvement:$evaluation[0].improvement}' > "$artifact/summary.json"
+          echo '## Proof kernel boundary conformance' >> "$GITHUB_STEP_SUMMARY"
+          jq -r '"- decision: \(.decision)","- exact counts: normal=\(.summary.normal), unknown=\(.summary.unknown), refuted=\(.summary.refuted), total=\(.summary.total)","- precedence: \(.precedence|join(">"))","- kernel API surface count: \(.kernel_api_surface_count)"' "$report" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '"- trusted/generated/Gooo files: \(.inventory.trusted_go_files)/\(.inventory.generated_go_files)/\(.inventory.gooo_files)","- trusted/generated/Gooo lines: \(.inventory.trusted_go_lines)/\(.inventory.generated_go_lines)/\(.inventory.gooo_lines)","- kernel API surface count: \(.inventory.kernel_api_surface_count)","- allowed authority operations: \(.authority.allowed_operations|join(", "))","- denied authority operations: \((.authority.denied_operations|if length == 0 then "none" else join(", ") end))","- repository writes/local test executions/cross-project gates: \(.authority.repository_writes)/\(.authority.local_test_executions)/\(.authority.cross_project_required_gates)","- artifact files/bytes: \(.artifacts.files)/\(.artifacts.bytes)","- build/test/conformance wall_ms: \(.ci.build_wall_ms)/\(.ci.test_wall_ms)/\(.ci.conformance_wall_ms)","- build/test/conformance peak_rss_kib: \(.ci.build_peak_rss_kib)/\(.ci.test_peak_rss_kib)/\(.ci.conformance_peak_rss_kib)"' "$artifact/summary.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload proof evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof-kernel-boundary-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/proof-kernel/artifact
+          if-no-files-found: error

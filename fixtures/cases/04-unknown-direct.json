@@ -1,0 +1,1 @@
+{"schema":"gooo/proof-kernel-boundary/case/v1","case_id":"unknown-direct","candidate_status":"UNKNOWN","expected_status":"UNKNOWN","unknown":{"stage":"EVIDENCE","step":"READ_PROOF_RECEIPT","reason":"PROOF_RECEIPT_MISSING","unknown_class":"DIRECT_MISSING","next_operation":"PROVIDE_PROOF_RECEIPT","blocked_by":[]}}

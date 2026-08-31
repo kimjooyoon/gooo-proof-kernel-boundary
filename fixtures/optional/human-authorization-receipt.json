@@ -1,0 +1,9 @@
+{
+  "schema": "gooo/human-authorization-receipt/v1",
+  "receipt_id": "human-auth/proof-kernel-change/v1",
+  "human_id": "human-reviewer-placeholder",
+  "authorized_parent_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "authorized_operation": "CHANGE_TRUSTED_KERNEL",
+  "receipt_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "immutable": true
+}

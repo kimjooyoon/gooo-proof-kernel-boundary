@@ -1,0 +1,28 @@
+package proofkernelboundary
+namespace proofkernelboundary
+
+entity KernelBoundary id "gooo://proof-kernel-boundary/entity/kernel-boundary"
+entity ParentKernelRelease id "gooo://proof-kernel-boundary/entity/parent-release"
+entity KernelVerdict id "gooo://proof-kernel-boundary/entity/verdict"
+entity PrecedenceContract id "gooo://proof-kernel-boundary/entity/precedence"
+entity DenominatorContract id "gooo://proof-kernel-boundary/entity/denominator"
+entity DigestVerifier id "gooo://proof-kernel-boundary/entity/digest-verifier"
+entity AuthorityCeiling id "gooo://proof-kernel-boundary/entity/authority-ceiling"
+entity SelfTrustAttempt id "gooo://proof-kernel-boundary/entity/self-trust"
+entity KernelChangeUnknown id "gooo://proof-kernel-boundary/entity/kernel-change-unknown"
+entity UntrustedPolicy id "gooo://proof-kernel-boundary/entity/untrusted-policy"
+entity HumanReport id "gooo://proof-kernel-boundary/entity/human-report"
+entity ImprovementPair id "gooo://proof-kernel-boundary/entity/improvement-pair"
+
+activity DeclareKernelBoundary(KernelBoundary) -> KernelBoundary
+activity PinParentKernelRelease(ParentKernelRelease) -> KernelBoundary
+activity VerifyKernelVerdict(KernelVerdict) -> KernelBoundary
+activity VerifyPrecedence(PrecedenceContract) -> KernelBoundary
+activity VerifyDenominator(DenominatorContract) -> KernelBoundary
+activity VerifyDigestVerifier(DigestVerifier) -> KernelBoundary
+activity VerifyAuthorityCeiling(AuthorityCeiling) -> KernelBoundary
+activity RejectSelfTrust(SelfTrustAttempt) -> KernelBoundary
+activity PreserveKernelChangeUnknown(KernelChangeUnknown) -> KernelBoundary
+activity ValidateUntrustedPolicy(UntrustedPolicy) -> KernelBoundary
+activity EmitHumanReport(HumanReport) -> KernelBoundary
+activity CompareImprovementPair(ImprovementPair) -> KernelBoundary

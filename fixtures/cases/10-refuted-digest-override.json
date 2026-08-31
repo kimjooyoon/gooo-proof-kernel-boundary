@@ -1,0 +1,1 @@
+{"schema":"gooo/proof-kernel-boundary/case/v1","case_id":"refuted-digest-verifier-override","candidate_status":"CLOSED","expected_status":"REFUTED","digest_verifier_override":"untrusted-md5"}

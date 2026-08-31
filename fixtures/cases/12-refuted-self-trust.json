@@ -1,0 +1,1 @@
+{"schema":"gooo/proof-kernel-boundary/case/v1","case_id":"refuted-self-trust","candidate_status":"CLOSED","expected_status":"REFUTED","self_trusted":true,"authority_operations":["WRITE_SOURCE_REPOSITORY"]}

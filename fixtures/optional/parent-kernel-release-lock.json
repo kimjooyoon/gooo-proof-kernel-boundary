@@ -1,0 +1,9 @@
+{
+  "schema": "gooo/external-release-lock/v1",
+  "repository": "kimjooyoon/gooo-proof-kernel-boundary",
+  "tag": "v0.0.1",
+  "target_commit_sha": "immutable-parent-commit-placeholder",
+  "asset": "proof-kernel-parent.tar.gz",
+  "asset_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "immutable": true
+}
