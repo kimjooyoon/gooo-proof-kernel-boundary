@@ -146,7 +146,10 @@ func compile(args []string, stdout, stderr io.Writer) int {
 	if err := writeJSON(*outputPath, ir); err != nil {
 		return emitError(stderr, "write semantic IR", err)
 	}
-	return writeJSONTo(stdout, ir)
+	if err := writeJSONTo(stdout, ir); err != nil {
+		return emitError(stderr, "emit semantic IR", err)
+	}
+	return 0
 }
 
 func evaluate(args []string, stdout, stderr io.Writer) int {
@@ -239,7 +242,10 @@ func evaluate(args []string, stdout, stderr io.Writer) int {
 	if err := writeJSON(filepath.Join(*outputDir, "evaluation.json"), report); err != nil {
 		return emitError(stderr, "write evaluation", err)
 	}
-	return writeJSONTo(stdout, report)
+	if err := writeJSONTo(stdout, report); err != nil {
+		return emitError(stderr, "emit evaluation", err)
+	}
+	return 0
 }
 
 func decide(results []evaluator.CaseResult) string {
