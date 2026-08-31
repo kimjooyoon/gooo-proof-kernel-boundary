@@ -43,6 +43,17 @@ excluded from the physical inventory as a documentation exception. Optional
 external inputs are immutable release locks only; another repository's branch,
 PR, or CI is never a required gate.
 
+The CI command shape is:
+
+```text
+gooo-proof-kernel-boundary compile --source ... --contract ... --output <temporary IR>
+gooo-proof-kernel-boundary evaluate --source ... --contract ... --ir <temporary IR> --cases fixtures/cases --output-dir <temporary report>
+```
+
+The report is the handoff artifact: it carries the kernel version, precedence,
+exact case states, authority observations, and the unresolved improvement
+tuple.
+
 ## Verification boundary
 
 GitHub Actions is the verification authority and uses Go 1.27. The local
