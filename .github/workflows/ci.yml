@@ -30,6 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           files=$(gofmt -l .)
+          if test -n "$files"; then gofmt -d $files; fi
           test -z "$files"
 
       - name: Build and measure

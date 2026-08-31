@@ -10,8 +10,8 @@ func validInput() Input {
 		ExpectedContractDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		ContractDigestVerified: true,
 		DigestVerifier:         DigestVerifierID,
-		ObservedDenominator:   FixedDenominator,
-		ObservedPrecedence:    append([]string(nil), Precedence...),
+		ObservedDenominator:    FixedDenominator,
+		ObservedPrecedence:     append([]string(nil), Precedence...),
 	}
 }
 

@@ -27,36 +27,36 @@ type contract struct {
 }
 
 type semanticIR struct {
-	Schema       string       `json:"schema"`
-	Source       string       `json:"source"`
-	SourceDigest string       `json:"source_digest"`
-	Nodes        []irNode     `json:"nodes"`
+	Schema       string   `json:"schema"`
+	Source       string   `json:"source"`
+	SourceDigest string   `json:"source_digest"`
+	Nodes        []irNode `json:"nodes"`
 }
 
 type irNode struct {
-	ID       string `json:"id"`
-	Activity string `json:"activity"`
-	SourceLine int   `json:"source_line"`
-	MetricID string `json:"metric_id"`
-	Artifact string `json:"artifact"`
-	Evaluator string `json:"evaluator"`
+	ID         string `json:"id"`
+	Activity   string `json:"activity"`
+	SourceLine int    `json:"source_line"`
+	MetricID   string `json:"metric_id"`
+	Artifact   string `json:"artifact"`
+	Evaluator  string `json:"evaluator"`
 }
 
 type report struct {
-	Schema                      string                    `json:"schema"`
-	Decision                    string                    `json:"decision"`
-	Precedence                  []string                  `json:"precedence"`
-	ContractDigest              string                    `json:"contract_digest"`
-	SourceDigest                string                    `json:"source_digest"`
-	SemanticIRDigest            string                    `json:"semantic_ir_digest"`
-	FixedDenominator            int                       `json:"fixed_denominator"`
-	KernelVersion               string                    `json:"kernel_version"`
-	KernelAPISurfaceCount       int                       `json:"kernel_api_surface_count"`
-	Cases                       []evaluator.CaseResult    `json:"cases"`
-	Summary                     summary                   `json:"summary"`
-	Authority                   authority                 `json:"authority"`
-	Improvement                 improvement               `json:"improvement"`
-	ExpectedStatusMismatches    []string                  `json:"expected_status_mismatches"`
+	Schema                   string                 `json:"schema"`
+	Decision                 string                 `json:"decision"`
+	Precedence               []string               `json:"precedence"`
+	ContractDigest           string                 `json:"contract_digest"`
+	SourceDigest             string                 `json:"source_digest"`
+	SemanticIRDigest         string                 `json:"semantic_ir_digest"`
+	FixedDenominator         int                    `json:"fixed_denominator"`
+	KernelVersion            string                 `json:"kernel_version"`
+	KernelAPISurfaceCount    int                    `json:"kernel_api_surface_count"`
+	Cases                    []evaluator.CaseResult `json:"cases"`
+	Summary                  summary                `json:"summary"`
+	Authority                authority              `json:"authority"`
+	Improvement              improvement            `json:"improvement"`
+	ExpectedStatusMismatches []string               `json:"expected_status_mismatches"`
 }
 
 type summary struct {
@@ -67,17 +67,17 @@ type summary struct {
 }
 
 type authority struct {
-	AllowedOperations []string `json:"allowed_operations"`
-	DeniedOperations  []string `json:"denied_operations"`
-	RepositoryWrites  int      `json:"repository_writes"`
-	LocalTestExecutions int    `json:"local_test_executions"`
-	CrossProjectRequiredGates int `json:"cross_project_required_gates"`
-	ReadOnly           bool     `json:"read_only"`
+	AllowedOperations         []string `json:"allowed_operations"`
+	DeniedOperations          []string `json:"denied_operations"`
+	RepositoryWrites          int      `json:"repository_writes"`
+	LocalTestExecutions       int      `json:"local_test_executions"`
+	CrossProjectRequiredGates int      `json:"cross_project_required_gates"`
+	ReadOnly                  bool     `json:"read_only"`
 }
 
 type improvement struct {
-	Status  string               `json:"status"`
-	Unknown kernel.UnknownTuple  `json:"unknown"`
+	Status  string              `json:"status"`
+	Unknown kernel.UnknownTuple `json:"unknown"`
 }
 
 func main() {
@@ -132,7 +132,7 @@ func compile(args []string, stdout, stderr io.Writer) int {
 		metricID string
 	}, len(c.Cells))
 	for _, cell := range c.Cells {
-		byActivity[cell.Activity] = struct{metricID string}{cell.MetricID}
+		byActivity[cell.Activity] = struct{ metricID string }{cell.MetricID}
 	}
 	nodes := make([]irNode, 0, len(activities))
 	for _, activity := range activities {
@@ -146,7 +146,10 @@ func compile(args []string, stdout, stderr io.Writer) int {
 	if err := writeJSON(*outputPath, ir); err != nil {
 		return emitError(stderr, "write semantic IR", err)
 	}
-	return writeJSONTo(stdout, ir)
+	if err := writeJSONTo(stdout, ir); err != nil {
+		return emitError(stderr, "emit semantic IR", err)
+	}
+	return 0
 }
 
 func evaluate(args []string, stdout, stderr io.Writer) int {
@@ -239,7 +242,10 @@ func evaluate(args []string, stdout, stderr io.Writer) int {
 	if err := writeJSON(filepath.Join(*outputDir, "evaluation.json"), report); err != nil {
 		return emitError(stderr, "write evaluation", err)
 	}
-	return writeJSONTo(stdout, report)
+	if err := writeJSONTo(stdout, report); err != nil {
+		return emitError(stderr, "emit evaluation", err)
+	}
+	return 0
 }
 
 func decide(results []evaluator.CaseResult) string {
@@ -256,7 +262,10 @@ func decide(results []evaluator.CaseResult) string {
 	return kernel.Closed
 }
 
-type activity struct { name string; line int }
+type activity struct {
+	name string
+	line int
+}
 
 func parseActivities(source string) []activity {
 	var result []activity
@@ -278,24 +287,34 @@ func kebab(value string) string {
 	var builder strings.Builder
 	for index, character := range value {
 		if character >= 'A' && character <= 'Z' {
-			if index > 0 { builder.WriteByte('-') }
+			if index > 0 {
+				builder.WriteByte('-')
+			}
 			builder.WriteRune(character + ('a' - 'A'))
-		} else { builder.WriteRune(character) }
+		} else {
+			builder.WriteRune(character)
+		}
 	}
 	return builder.String()
 }
 
 func mapKeys(values map[string]bool) []string {
 	result := make([]string, 0, len(values))
-	for key := range values { result = append(result, key) }
+	for key := range values {
+		result = append(result, key)
+	}
 	sort.Strings(result)
 	return result
 }
 
 func writeJSON(path string, value any) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil { return err }
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
 	file, err := os.Create(path)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 	return writeJSONTo(file, value)
 }

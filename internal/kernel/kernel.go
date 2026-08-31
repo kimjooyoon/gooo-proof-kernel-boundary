@@ -10,15 +10,15 @@ import (
 )
 
 const (
-	Version              = "gooo/proof-kernel-boundary/kernel/v1"
-	TrustedKernelDigest  = "sha256:6a3f31f11cd2b4cc9cf9f6b0c4c9fc3b8a3d8e4d6fa4f5ad1cb6c05e4c8c8d11"
-	DigestVerifierID     = "trusted-sha256-v1"
-	FixedDenominator     = 12
-	Closed               = "CLOSED"
-	Unknown              = "UNKNOWN"
-	Refuted              = "REFUTED"
-	AllowedRead          = "READ_IMMUTABLE_INPUT"
-	AllowedReportWrite   = "WRITE_CALLER_OWNED_REPORT"
+	Version               = "gooo/proof-kernel-boundary/kernel/v1"
+	TrustedKernelDigest   = "sha256:6a3f31f11cd2b4cc9cf9f6b0c4c9fc3b8a3d8e4d6fa4f5ad1cb6c05e4c8c8d11"
+	DigestVerifierID      = "trusted-sha256-v1"
+	FixedDenominator      = 12
+	Closed                = "CLOSED"
+	Unknown               = "UNKNOWN"
+	Refuted               = "REFUTED"
+	AllowedRead           = "READ_IMMUTABLE_INPUT"
+	AllowedReportWrite    = "WRITE_CALLER_OWNED_REPORT"
 	KernelAPISurfaceCount = 8
 )
 
@@ -34,65 +34,65 @@ type UnknownTuple struct {
 }
 
 type ParentRelease struct {
-	Tag         string `json:"tag"`
-	CommitSHA   string `json:"commit_sha"`
+	Tag           string `json:"tag"`
+	CommitSHA     string `json:"commit_sha"`
 	ReleaseDigest string `json:"release_digest"`
-	AssetDigest string `json:"asset_digest"`
-	Immutable   bool   `json:"immutable"`
+	AssetDigest   string `json:"asset_digest"`
+	Immutable     bool   `json:"immutable"`
 }
 
 type HumanAuthorization struct {
-	ReceiptID          string `json:"receipt_id"`
-	HumanID            string `json:"human_id"`
+	ReceiptID              string `json:"receipt_id"`
+	HumanID                string `json:"human_id"`
 	AuthorizedParentDigest string `json:"authorized_parent_digest"`
-	AuthorizedOperation string `json:"authorized_operation"`
-	ReceiptDigest      string `json:"receipt_digest"`
+	AuthorizedOperation    string `json:"authorized_operation"`
+	ReceiptDigest          string `json:"receipt_digest"`
 }
 
 type Input struct {
-	CaseID                    string               `json:"case_id"`
-	CandidateStatus           string               `json:"candidate_status"`
-	Unknown                   *UnknownTuple        `json:"unknown"`
-	ContractDigest            string               `json:"contract_digest"`
-	ExpectedContractDigest    string               `json:"expected_contract_digest"`
-	ContractDigestVerified    bool                 `json:"contract_digest_verified"`
-	DigestVerifier            string               `json:"digest_verifier"`
-	KernelVerdictOverride     string               `json:"kernel_verdict_override"`
-	PrecedenceOverride        []string             `json:"precedence_override"`
-	DenominatorOverride       *int                 `json:"denominator_override"`
-	DigestVerifierOverride    string               `json:"digest_verifier_override"`
-	AuthorityCeilingOverride  []string             `json:"authority_ceiling_override"`
-	SelfTrusted               bool                 `json:"self_trusted"`
-	ObservedDenominator       int                  `json:"observed_denominator"`
-	ObservedPrecedence        []string             `json:"observed_precedence"`
-	AuthorityOperations       []string             `json:"authority_operations"`
-	ParentKernelChanged       bool                 `json:"parent_kernel_changed"`
-	ParentRelease             *ParentRelease       `json:"parent_release"`
-	HumanAuthorization       *HumanAuthorization  `json:"human_authorization"`
+	CaseID                   string              `json:"case_id"`
+	CandidateStatus          string              `json:"candidate_status"`
+	Unknown                  *UnknownTuple       `json:"unknown"`
+	ContractDigest           string              `json:"contract_digest"`
+	ExpectedContractDigest   string              `json:"expected_contract_digest"`
+	ContractDigestVerified   bool                `json:"contract_digest_verified"`
+	DigestVerifier           string              `json:"digest_verifier"`
+	KernelVerdictOverride    string              `json:"kernel_verdict_override"`
+	PrecedenceOverride       []string            `json:"precedence_override"`
+	DenominatorOverride      *int                `json:"denominator_override"`
+	DigestVerifierOverride   string              `json:"digest_verifier_override"`
+	AuthorityCeilingOverride []string            `json:"authority_ceiling_override"`
+	SelfTrusted              bool                `json:"self_trusted"`
+	ObservedDenominator      int                 `json:"observed_denominator"`
+	ObservedPrecedence       []string            `json:"observed_precedence"`
+	AuthorityOperations      []string            `json:"authority_operations"`
+	ParentKernelChanged      bool                `json:"parent_kernel_changed"`
+	ParentRelease            *ParentRelease      `json:"parent_release"`
+	HumanAuthorization       *HumanAuthorization `json:"human_authorization"`
 }
 
 type Verdict struct {
-	KernelVersion        string        `json:"kernel_version"`
-	Status               string        `json:"status"`
-	Decision             string        `json:"decision"`
-	Reason               string        `json:"reason"`
-	Precedence           []string      `json:"precedence"`
-	Unknown              *UnknownTuple `json:"unknown"`
-	AllowedOperations   []string      `json:"allowed_operations"`
-	DeniedOperations    []string      `json:"denied_operations"`
-	KernelAPISurfaceCount int         `json:"kernel_api_surface_count"`
+	KernelVersion         string        `json:"kernel_version"`
+	Status                string        `json:"status"`
+	Decision              string        `json:"decision"`
+	Reason                string        `json:"reason"`
+	Precedence            []string      `json:"precedence"`
+	Unknown               *UnknownTuple `json:"unknown"`
+	AllowedOperations     []string      `json:"allowed_operations"`
+	DeniedOperations      []string      `json:"denied_operations"`
+	KernelAPISurfaceCount int           `json:"kernel_api_surface_count"`
 }
 
 func Verify(input Input) Verdict {
 	verdict := Verdict{
-		KernelVersion:          Version,
-		Status:                 Refuted,
-		Decision:               Refuted,
-		Reason:                 "KERNEL_VERIFICATION_NOT_COMPLETE",
-		Precedence:             append([]string(nil), Precedence...),
-		AllowedOperations:      []string{AllowedRead, AllowedReportWrite},
-		DeniedOperations:       []string{},
-		KernelAPISurfaceCount:   KernelAPISurfaceCount,
+		KernelVersion:         Version,
+		Status:                Refuted,
+		Decision:              Refuted,
+		Reason:                "KERNEL_VERIFICATION_NOT_COMPLETE",
+		Precedence:            append([]string(nil), Precedence...),
+		AllowedOperations:     []string{AllowedRead, AllowedReportWrite},
+		DeniedOperations:      []string{},
+		KernelAPISurfaceCount: KernelAPISurfaceCount,
 	}
 
 	if input.KernelVerdictOverride != "" {
