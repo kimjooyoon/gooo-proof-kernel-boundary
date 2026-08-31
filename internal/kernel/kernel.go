@@ -80,7 +80,7 @@ type Verdict struct {
 	Unknown               *UnknownTuple `json:"unknown"`
 	AllowedOperations     []string      `json:"allowed_operations"`
 	DeniedOperations      []string      `json:"denied_operations"`
-	KernelAPISurfaceCount int         `json:"kernel_api_surface_count"`
+	KernelAPISurfaceCount int           `json:"kernel_api_surface_count"`
 }
 
 func Verify(input Input) Verdict {
