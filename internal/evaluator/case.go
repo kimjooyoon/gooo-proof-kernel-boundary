@@ -33,13 +33,13 @@ type CaseInput struct {
 }
 
 type CaseResult struct {
-	CaseID             string               `json:"case_id"`
-	ExpectedStatus     string               `json:"expected_status"`
-	Kernel             kernel.Verdict       `json:"kernel"`
-	Status             string               `json:"status"`
-	Unknown            *kernel.UnknownTuple `json:"unknown"`
-	AllowedOperations  []string             `json:"allowed_operations"`
-	DeniedOperations   []string             `json:"denied_operations"`
+	CaseID            string               `json:"case_id"`
+	ExpectedStatus    string               `json:"expected_status"`
+	Kernel            kernel.Verdict       `json:"kernel"`
+	Status            string               `json:"status"`
+	Unknown           *kernel.UnknownTuple `json:"unknown"`
+	AllowedOperations []string             `json:"allowed_operations"`
+	DeniedOperations  []string             `json:"denied_operations"`
 }
 
 func DecodeCase(path string) (CaseInput, error) {
@@ -83,7 +83,7 @@ func EvaluateCase(input CaseInput, contractDigest string) CaseResult {
 		Kernel:            verdict,
 		Status:            verdict.Status,
 		Unknown:           verdict.Unknown,
-		AllowedOperations:  verdict.AllowedOperations,
+		AllowedOperations: verdict.AllowedOperations,
 		DeniedOperations:  verdict.DeniedOperations,
 	}
 }
